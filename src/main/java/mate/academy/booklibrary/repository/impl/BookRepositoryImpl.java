@@ -38,10 +38,13 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Optional<Book> findById(Long id) {
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
             return Optional.ofNullable(entityManager.find(Book.class, id));
         } catch (Exception e) {
-            throw new RuntimeException("Can't find book by id: " + id, e);
+            throw new DataProcessingException("Can't find book by id: " + id, e);
+        } finally {
+            entityManager.close();
         }
     }
 
