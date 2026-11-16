@@ -2,7 +2,6 @@ package mate.academy.booklibrary.dto;
 
 import java.math.BigDecimal;
 import lombok.Data;
-//For clients
 
 @Data
 public class BookDto {

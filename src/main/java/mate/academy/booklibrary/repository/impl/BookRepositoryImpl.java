@@ -6,6 +6,7 @@ import jakarta.persistence.EntityTransaction;
 import java.util.List;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import mate.academy.booklibrary.exception.DataProcessingException;
 import mate.academy.booklibrary.model.Book;
 import mate.academy.booklibrary.repository.BookRepository;
 import org.springframework.stereotype.Repository;
@@ -17,8 +18,10 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book book) {
+        EntityManager entityManager = null;
         EntityTransaction transaction = null;
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        try {
+            entityManager = entityManagerFactory.createEntityManager();
             transaction = entityManager.getTransaction();
             transaction.begin();
             entityManager.persist(book);
@@ -28,7 +31,11 @@ public class BookRepositoryImpl implements BookRepository {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Can't insert book into DB: " + book, e);
+            throw new DataProcessingException("Can't insert book into DB: " + book);
+        } finally {
+            if (entityManager != null && entityManager.isOpen()) {
+                entityManager.close();
+            }
         }
     }
 
@@ -37,7 +44,7 @@ public class BookRepositoryImpl implements BookRepository {
         try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
             return Optional.ofNullable(entityManager.find(Book.class, id));
         } catch (Exception e) {
-            throw new RuntimeException("Can't find book by id: " + id, e);
+            throw new DataProcessingException("Can't find book by id: " + id);
         }
     }
 
@@ -47,7 +54,7 @@ public class BookRepositoryImpl implements BookRepository {
             return entityManager.createQuery("SELECT b FROM Book b", Book.class)
                     .getResultList();
         } catch (Exception e) {
-            throw new RuntimeException("Can't get all books from DB", e);
+            throw new DataProcessingException("Can't get all books from DB");
         }
     }
 }
