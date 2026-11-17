@@ -1,11 +1,13 @@
-package mate.academy.booklibrary.repository;
+package mate.academy.booklibrary.repository.impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import mate.academy.booklibrary.exception.DataProcessingException;
 import mate.academy.booklibrary.model.Book;
+import mate.academy.booklibrary.repository.BookRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
@@ -15,8 +17,9 @@ public class BookRepositoryImpl implements BookRepository {
 
     @Override
     public Book save(Book book) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
         EntityTransaction transaction = null;
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        try {
             transaction = entityManager.getTransaction();
             transaction.begin();
             entityManager.persist(book);
@@ -26,18 +29,22 @@ public class BookRepositoryImpl implements BookRepository {
             if (transaction != null && transaction.isActive()) {
                 transaction.rollback();
             }
-            throw new RuntimeException("Can't insert book into DB: " + book, e);
+            throw new DataProcessingException("Can't insert book into DB: " + book, e);
+        } finally {
+            entityManager.close();
         }
     }
 
     @Override
     public List<Book> findAll() {
-        try (EntityManager entityManager = entityManagerFactory.createEntityManager()) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
             return entityManager.createQuery("SELECT b FROM Book b", Book.class)
                     .getResultList();
         } catch (Exception e) {
-            throw new RuntimeException("Can't get all books from DB", e);
+            throw new DataProcessingException("Can't get all books from DB", e);
+        } finally {
+            entityManager.close();
         }
     }
 }
-
