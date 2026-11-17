@@ -4,6 +4,7 @@ import java.util.List;
 import lombok.RequiredArgsConstructor;
 import mate.academy.booklibrary.dto.BookDto;
 import mate.academy.booklibrary.dto.CreateBookRequestDto;
+import mate.academy.booklibrary.dto.UpdateBookRequestDto;
 import mate.academy.booklibrary.exception.EntityNotFoundException;
 import mate.academy.booklibrary.mapper.BookMapper;
 import mate.academy.booklibrary.model.Book;
@@ -20,7 +21,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookDto> getAll() {
-        return bookRepository.findAll()
+        return bookRepository.findAllByIsDeletedFalse()
                 .stream()
                 .map(bookMapper::toDto)
                 .toList();
@@ -28,7 +29,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto getBookById(Long id) {
-        Book book = bookRepository.findById(id)
+        Book book = bookRepository.findByIdAndIsDeletedFalse(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Book not found with id: " + id
                 ));
@@ -42,6 +43,35 @@ public class BookServiceImpl implements BookService {
 
         Book savedBook = bookRepository.save(book);
         return bookMapper.toDto(savedBook);
+    }
+
+    @Override
+    public void deleteBook(Long id) {
+        Book book = bookRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Book not found with id: " + id
+                ));
+
+        book.setDeleted(true);
+        bookRepository.save(book);
+    }
+
+    @Override
+    public BookDto updateBook(Long id, UpdateBookRequestDto requestDto) {
+        Book book = bookRepository.findByIdAndIsDeletedFalse(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Book not found with id: " + id
+                ));
+
+        book.setTitle(requestDto.getTitle());
+        book.setAuthor(requestDto.getAuthor());
+        book.setIsbn(requestDto.getIsbn());
+        book.setPrice(requestDto.getPrice());
+        book.setDescription(requestDto.getDescription());
+        book.setCoverImage(requestDto.getCoverImage());
+
+        Book updatedBook = bookRepository.save(book);
+        return bookMapper.toDto(updatedBook);
     }
 }
 
