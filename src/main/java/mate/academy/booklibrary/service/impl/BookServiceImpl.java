@@ -1,3 +1,4 @@
+
 package mate.academy.booklibrary.service.impl;
 
 import java.util.List;
@@ -21,7 +22,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public List<BookDto> getAll() {
-        return bookRepository.findAllByIsDeletedFalse()
+        return bookRepository.findAll()
                 .stream()
                 .map(bookMapper::toDto)
                 .toList();
@@ -29,7 +30,7 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public BookDto getBookById(Long id) {
-        Book book = bookRepository.findByIdAndIsDeletedFalse(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Book not found with id: " + id
                 ));
@@ -47,31 +48,24 @@ public class BookServiceImpl implements BookService {
 
     @Override
     public void deleteBook(Long id) {
-        Book book = bookRepository.findByIdAndIsDeletedFalse(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Book not found with id: " + id
                 ));
 
-        book.setDeleted(true);
-        bookRepository.save(book);
+        bookRepository.delete(book);
     }
 
     @Override
     public BookDto updateBook(Long id, UpdateBookRequestDto requestDto) {
-        Book book = bookRepository.findByIdAndIsDeletedFalse(id)
+        Book book = bookRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(
                         "Book not found with id: " + id
                 ));
 
-        book.setTitle(requestDto.getTitle());
-        book.setAuthor(requestDto.getAuthor());
-        book.setIsbn(requestDto.getIsbn());
-        book.setPrice(requestDto.getPrice());
-        book.setDescription(requestDto.getDescription());
-        book.setCoverImage(requestDto.getCoverImage());
+        bookMapper.updateBook(requestDto, book);
 
         Book updatedBook = bookRepository.save(book);
         return bookMapper.toDto(updatedBook);
     }
 }
-
