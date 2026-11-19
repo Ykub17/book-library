@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.EntityTransaction;
 import java.util.List;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import mate.academy.booklibrary.exception.DataProcessingException;
 import mate.academy.booklibrary.model.Book;
@@ -30,6 +31,18 @@ public class BookRepositoryImpl implements BookRepository {
                 transaction.rollback();
             }
             throw new DataProcessingException("Can't insert book into DB: " + book, e);
+        } finally {
+            entityManager.close();
+        }
+    }
+
+    @Override
+    public Optional<Book> findById(Long id) {
+        EntityManager entityManager = entityManagerFactory.createEntityManager();
+        try {
+            return Optional.ofNullable(entityManager.find(Book.class, id));
+        } catch (Exception e) {
+            throw new DataProcessingException("Can't find book by id: " + id, e);
         } finally {
             entityManager.close();
         }
