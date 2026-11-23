@@ -23,7 +23,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throws RegistrationException {
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new RegistrationException(
-                    "User with this email already exists"
+                    "User with this email already exists " + request.getEmail()
             );
         }
 
