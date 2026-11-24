@@ -1,5 +1,7 @@
+
 package mate.academy.booklibrary.service.impl;
 
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import mate.academy.booklibrary.dto.UserRegistrationRequestDto;
 import mate.academy.booklibrary.dto.UserResponseDto;
@@ -13,8 +15,6 @@ import mate.academy.booklibrary.repository.UserRepository;
 import mate.academy.booklibrary.service.AuthenticationService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
