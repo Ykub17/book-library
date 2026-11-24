@@ -1,4 +1,3 @@
-
 package mate.academy.booklibrary.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -43,4 +42,3 @@ public class AuthenticationController {
         return authenticationService.register(request);
     }
 }
-

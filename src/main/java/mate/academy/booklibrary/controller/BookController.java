@@ -15,6 +15,7 @@ import mate.academy.booklibrary.service.BookService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -34,6 +35,7 @@ public class BookController {
     private final BookService bookService;
 
     @GetMapping
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Get all books", description = "Returns a paginated list of books")
     @ApiResponse(responseCode = "200", description = "Books retrieved successfully")
     public Page<BookDto> getAll(Pageable pageable) {
@@ -41,6 +43,7 @@ public class BookController {
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('USER')")
     @Operation(summary = "Get book by ID", description = "Returns a book with the specified ID")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Book retrieved successfully"),
@@ -54,6 +57,7 @@ public class BookController {
     }
 
     @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     @Operation(summary = "Create a book", description = "Creates a new book")
     @ApiResponses(value = {
@@ -67,6 +71,7 @@ public class BookController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @Operation(summary = "Delete a book", description = "Deletes a book by its ID")
     @ApiResponses(value = {
@@ -81,6 +86,7 @@ public class BookController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Update a book", description = "Updates an existing book")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Book updated successfully"),
@@ -95,4 +101,3 @@ public class BookController {
         return bookService.updateBook(id, requestDto);
     }
 }
-
