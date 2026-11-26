@@ -1,10 +1,11 @@
-
 package mate.academy.booklibrary.service.impl;
 
+import jakarta.transaction.Transactional;
 import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import mate.academy.booklibrary.dto.UserRegistrationRequestDto;
 import mate.academy.booklibrary.dto.UserResponseDto;
+import mate.academy.booklibrary.exception.EntityNotFoundException;
 import mate.academy.booklibrary.exception.RegistrationException;
 import mate.academy.booklibrary.mapper.UserMapper;
 import mate.academy.booklibrary.model.Role;
@@ -17,6 +18,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class AuthenticationServiceImpl implements AuthenticationService {
     private final UserRepository userRepository;
@@ -37,7 +39,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
         Role userRole = roleRepository.findByName(RoleName.USER)
-                .orElseThrow(() -> new RuntimeException("USER role not found"));
+                .orElseThrow(() -> new EntityNotFoundException(
+                        RoleName.USER + " role not found"
+                ));
 
         user.setRoles(Set.of(userRole));
 

@@ -1,3 +1,4 @@
+
 package mate.academy.booklibrary.model;
 
 import jakarta.persistence.Column;
@@ -10,11 +11,11 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
@@ -38,6 +39,9 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String lastName;
 
+    @Column(name = "is_deleted", nullable = false)
+    private boolean deleted;
+
     private String shippingAddress;
 
     @ManyToMany
@@ -46,15 +50,11 @@ public class User implements UserDetails {
             joinColumns = @JoinColumn(name = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id")
     )
-    private Set<Role> roles;
+    private Set<Role> roles = new HashSet<>();
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return roles.stream()
-                .map(role -> new SimpleGrantedAuthority(
-                        "ROLE_" + role.getName().name()
-                ))
-                .toList();
+        return roles;
     }
 
     @Override
@@ -79,6 +79,6 @@ public class User implements UserDetails {
 
     @Override
     public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
+        return !deleted;
     }
 }
